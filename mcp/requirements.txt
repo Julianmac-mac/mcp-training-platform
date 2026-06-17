@@ -1,0 +1,10 @@
+fastmcp~=2.13.0.2
+fastapi~=0.121.0
+uvicorn[standard]==0.38.0
+PyYAML==6.0.3
+httpx~=0.28.0
+requests~=2.32.5
+ffmcp~=0.4.0
+python-dotenv
+pymssql
+mcp

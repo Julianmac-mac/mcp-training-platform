@@ -1,0 +1,25 @@
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXUS_USER: ${NEXUS_USER}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
+    container_name: skill_adelina_mcp
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: "${DB_PORT}"
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "8000"
+    ports:
+      - "8000:8000"
+    networks:
+      - cursos
+
+networks:
+  cursos:
+    external: true

@@ -1,0 +1,6 @@
+version: "1.0.0"
+build: "2026-06-11"
+server: "Historial Cursos MCP Server"
+base_path: "/api/1/historial-cursos"
+description: "Ready-to-run ffmcp MCP server for Historial Cursos progress management"
+auth_mode: "go-token"
