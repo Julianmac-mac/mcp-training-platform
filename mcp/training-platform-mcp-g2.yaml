@@ -25,7 +25,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /api/1/historial-cursos/ping
+              path: /api/1/training-platform-mcp-g2/ping
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 120
@@ -117,5 +117,5 @@ spec:
                 name: training-platform-mcp-g2-service
                 port:
                   number: 80
-            path: /api/1/historial-cursos/
+            path: /api/1/training-platform-mcp-g2/
             pathType: Prefix
