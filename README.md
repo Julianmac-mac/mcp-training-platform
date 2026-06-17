@@ -1,93 +1,148 @@
 # training-platform-mcp-g2
 
+## Descripción
 
+Este repositorio contiene el servidor MCP `Historial Cursos MCP`, construido con FastMCP/ffmcp en Python. Gestiona el progreso de cursos de usuarios autenticados mediante `go-token` y almacena los datos en SQL Server.
 
-## Getting started
+Carpeta principal del servidor: `mcp/`
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Requisitos
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Docker y Docker Compose instalados.
+- Acceso a SQL Server o un contenedor MSSQL.
+- Variables de entorno de conexión a la base de datos.
+- `kubectl` configurado para despliegues en Kubernetes.
 
-## Add your files
+## Estructura relevante
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- `mcp/Dockerfile`: define la imagen Docker del servidor.
+- `mcp/docker-compose.yml`: despliegue local con Docker Compose.
+- `mcp/mcp.yaml`: configuración del servidor MCP.
+- `mcp/k8s-deployment.yaml`: manifiesto Kubernetes (Deployment, Service, Ingress).
+- `mcp/k8s-db-secret.yaml`: secreto Kubernetes para credenciales de SQL Server.
+- `mcp/Creación de base de datos.sql`: script de creación de tablas.
+- `mcp/main.py`: entrypoint del servidor.
+- `mcp/db.py`: helper para conexión y acceso a la base de datos.
+- `mcp/namespaces/gestion_historial/handlers.py`: define las tools, recurso y prompt.
+- `mcp/namespaces/gestion_historial/config.py`: configuración del namespace.
+- `mcp/namespaces/gestion_historial/auth.py`: validación del token GO.
 
+## Instalación local con Docker Compose
+
+### 1. Preparar el entorno
+
+En la raíz del repositorio, ve a la carpeta `mcp`:
+
+```bash
+cd mcp
 ```
-cd existing_repo
-git remote add origin https://gitlab.finneg.com/crisalis/crisalis-tech-2026/training-platform-mcp-g2.git
-git branch -M main
-git push -uf origin main
+
+### 2. Crear archivo .env
+
+Crea un archivo `.env` junto a `docker-compose.yml` con los siguientes valores:
+
+```env
+NEXUS_USER=<tu_usuario_nexus>
+NEXUS_PASSWORD=<tu_password_nexus>
+DB_HOST=<host_sql_server>
+DB_PORT=1433
+DB_USER=<usuario_sql>
+DB_PASSWORD=<password_sql>
+DB_NAME=HistorialCursos
 ```
 
-## Integrate with your tools
+### 3. Construir y ejecutar
 
-* [Set up project integrations](https://gitlab.finneg.com/crisalis/crisalis-tech-2026/training-platform-mcp-g2/-/settings/integrations)
+```bash
+docker compose up --build
+```
 
-## Collaborate with your team
+### 4. Verificar
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Abre `http://localhost:8000` para verificar que el servidor esté disponible.
 
-## Test and Deploy
+> El servidor carga `mcp/mcp.yaml` y expone el puerto `8000`.
 
-Use the built-in continuous integration in GitLab.
+## Inicialización de base de datos SQL Server
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Antes de arrancar el servidor, crea la base de datos y las tablas ejecutando:
 
-***
+```bash
+sqlcmd -S <host>,1433 -U <usuario> -P <password> -i "mcp/Creación de base de datos.sql"
+```
 
-# Editing this README
+El script crea tres tablas:
+- `courses`: catálogo de cursos
+- `stages`: etapas del flujo de aprendizaje
+- `student_progress`: registro de progreso del estudiante
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Variables de entorno
 
-## Suggestions for a good README
+- `DB_HOST`: host del servidor SQL Server
+- `DB_PORT`: puerto de SQL Server (por defecto 1433)
+- `DB_USER`: usuario de SQL Server
+- `DB_PASSWORD`: password de SQL Server
+- `DB_NAME`: nombre de la base de datos
+- `SERVER_HOST`: host del servidor MCP (por defecto `0.0.0.0`)
+- `SERVER_PORT`: puerto del servidor MCP (por defecto `8000`)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Arquitectura del servidor
 
-## Name
-Choose a self-explaining name for your project.
+El servidor arranca con `python main.py` y usa `uvicorn`.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+En `mcp/main.py`, la aplicación MCP se crea con:
+- `namespaces_dir="./namespaces"`
+- `config_file="mcp.yaml"`
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Esto carga automáticamente el namespace `gestion_historial` desde `mcp/namespaces/gestion_historial/`.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Tools del MCP
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### `get_course_progress`
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Recupera el progreso actual del usuario autenticado.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**Funcionamiento:**
+- Extrae el `access_token` del contexto MCP o del header `Authorization: Bearer <token>`
+- Valida el token contra `https://go.finneg.com/auth/token/info`
+- Consulta la base de datos y devuelve:
+  - `user_email`: email del usuario
+  - `current_course`: nombre del curso actual
+  - `current_stage`: nombre de la etapa actual
+  - `updated_at`: timestamp de la última actualización
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+**Ejemplo de respuesta:**
+```json
+{
+  "user_email": "usuario@example.com",
+  "current_course": "Programacion_desde_0_Parte_1",
+  "current_stage": "ADELINA_TEORIA",
+  "updated_at": "2026-06-17T10:30:45.123456"
+}
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### `save_course_progress`
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Guarda o actualiza el progreso de curso del usuario autenticado.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+**Parámetros:**
+- `course_name` (string): nombre del curso
+- `stage_name` (string): nombre de la etapa
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**Funcionamiento:**
+- Valida el token y obtiene el email del usuario
+- Crea el curso en la tabla `courses` si no existe
+- Crea la etapa en la tabla `stages` si no existe
+- Inserta o actualiza el registro en `student_progress`
 
-## License
-For open source projects, say how it is licensed.
+**Ejemplo de respuesta:**
+```json
+{
+  "status": "ok",
+  "user_email": "usuario@example.com",
+  "saved_course": "Programacion_desde_0_Parte_1",
+  "saved_stage": "ADELINA_TEORIA",
+  "updated_at": "2026-06-17T10:30:45.123456"
+}
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.

@@ -1,0 +1,121 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: training-platform-mcp-g2
+spec:
+  minReadySeconds: 20
+  replicas: 1
+  selector:
+    matchLabels:
+      app: training-platform-mcp-g2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: training-platform-mcp-g2
+    spec:
+      containers:
+        - image: 435512111670.dkr.ecr.us-east-1.amazonaws.com/eco/back:training-platform-mcp-g2-1
+          name: training-platform-mcp-g2
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/1/training-platform-mcp-g2/ping
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          env:
+            - name: GO_BASE_PATH
+              value: "https://servicios-dev.finneg.com"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: training-platform-mcp-g2-db-secret
+                  key: db_host
+                  optional: true
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: training-platform-mcp-g2-db-secret
+                  key: db_port
+                  optional: true
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: training-platform-mcp-g2-db-secret
+                  key: db_user
+                  optional: true
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: training-platform-mcp-g2-db-secret
+                  key: db_password
+                  optional: true
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: training-platform-mcp-g2-db-secret
+                  key: db_name
+                  optional: true
+        - image: mcr.microsoft.com/mssql/server:2022-latest
+          name: sqlserver
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              value: "Clave_2019!"
+            - name: MSSQL_PID
+              value: "Express"
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: training-platform-mcp-g2-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: training-platform-mcp-g2
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+  name: training-platform-mcp-g2-ingress
+spec:
+  ingressClassName: nginx-servicios
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: training-platform-mcp-g2-service
+                port:
+                  number: 80
+            path: /api/1/training-platform-mcp-g2/
+            pathType: Prefix

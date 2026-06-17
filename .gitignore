@@ -1,0 +1,36 @@
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# Configuraciones locales con contraseñas (ajusta la ruta si es necesario)
+skills/config.json
+# Archivos de sistema / IDEs
+Thumbs.db
+.DS_Store
+
+#Pip Config
+pip.config
+
+# Variables de entorno
+.env

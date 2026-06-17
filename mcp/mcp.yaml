@@ -1,0 +1,6 @@
+version: "1.0.0"
+build: "2026-06-11"
+server: "Training Platform MCP Server"
+base_path: "/api/1/training-platform-mcp-g2"
+description: "Ready-to-run ffmcp MCP server for Training Platform MCP progress management"
+auth_mode: "go-token"

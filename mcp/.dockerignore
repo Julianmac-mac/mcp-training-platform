@@ -1,0 +1,35 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.Python
+env/
+venv/
+.venv/
+
+# Node artifacts
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Docker and build artifacts
+Dockerfile*
+docker-compose*.yml
+*.log
+*.sqlite3
+*.db
+
+# Virtualenv, editor, and OS files
+*.swp
+*.swo
+*.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# Environment files
+.env
+*.env
