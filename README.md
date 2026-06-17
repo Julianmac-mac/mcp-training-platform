@@ -1,93 +1,260 @@
 # training-platform-mcp-g2
 
+## Descripción
 
+Este repositorio contiene el servidor MCP `Historial Cursos MCP`, construido con FastMCP/ffmcp en Python. Gestiona el progreso de cursos de usuarios autenticados mediante `go-token` y almacena los datos en SQL Server.
 
-## Getting started
+Carpeta principal del servidor: `mcp/`
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Requisitos
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Docker y Docker Compose instalados.
+- Acceso a SQL Server o un contenedor MSSQL.
+- Variables de entorno de conexión a la base de datos.
+- `kubectl` configurado para despliegues en Kubernetes.
 
-## Add your files
+## Estructura relevante
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- `mcp/Dockerfile`: define la imagen Docker del servidor.
+- `mcp/docker-compose.yml`: despliegue local con Docker Compose.
+- `mcp/mcp.yaml`: configuración del servidor MCP.
+- `mcp/k8s-deployment.yaml`: manifiesto Kubernetes (Deployment, Service, Ingress).
+- `mcp/k8s-db-secret.yaml`: secreto Kubernetes para credenciales de SQL Server.
+- `mcp/Creación de base de datos.sql`: script de creación de tablas.
+- `mcp/main.py`: entrypoint del servidor.
+- `mcp/db.py`: helper para conexión y acceso a la base de datos.
+- `mcp/namespaces/gestion_historial/handlers.py`: define las tools, recurso y prompt.
+- `mcp/namespaces/gestion_historial/config.py`: configuración del namespace.
+- `mcp/namespaces/gestion_historial/auth.py`: validación del token GO.
+
+## Instalación local con Docker Compose
+
+### 1. Preparar el entorno
+
+En la raíz del repositorio, ve a la carpeta `mcp`:
+
+```bash
+cd mcp
+```
+
+### 2. Crear archivo .env
+
+Crea un archivo `.env` junto a `docker-compose.yml` con los siguientes valores:
+
+```env
+NEXUS_USER=<tu_usuario_nexus>
+NEXUS_PASSWORD=<tu_password_nexus>
+DB_HOST=<host_sql_server>
+DB_PORT=1433
+DB_USER=<usuario_sql>
+DB_PASSWORD=<password_sql>
+DB_NAME=HistorialCursos
+```
+
+### 3. Construir y ejecutar
+
+```bash
+docker compose up --build
+```
+
+### 4. Verificar
+
+Abre `http://localhost:8000` para verificar que el servidor esté disponible.
+
+> El servidor carga `mcp/mcp.yaml` y expone el puerto `8000`.
+
+## Inicialización de base de datos SQL Server
+
+Antes de arrancar el servidor, crea la base de datos y las tablas ejecutando:
+
+```bash
+sqlcmd -S <host>,1433 -U <usuario> -P <password> -i "mcp/Creación de base de datos.sql"
+```
+
+El script crea tres tablas:
+- `courses`: catálogo de cursos
+- `stages`: etapas del flujo de aprendizaje
+- `student_progress`: registro de progreso del estudiante
+
+## Despliegue en Kubernetes
+
+### 1. Configurar el secreto de base de datos
+
+Edita `mcp/k8s-db-secret.yaml` con los valores reales de tu SQL Server:
+
+```yaml
+stringData:
+  db_host: "tu_host_sql_server"
+  db_port: "1433"
+  db_user: "sa"
+  db_password: "tu_password"
+  db_name: "HistorialCursos"
+```
+
+Aplica el secreto:
+
+```bash
+kubectl apply -f mcp/k8s-db-secret.yaml
+```
+
+### 2. Desplegar la aplicación
+
+Asegúrate de que la imagen Docker esté disponible en el registro indicado en `mcp/k8s-deployment.yaml`:
+
+```yaml
+image: 435512111670.dkr.ecr.us-east-1.amazonaws.com/eco/back:skill-adelina-1
+```
+
+Aplica el manifiesto:
+
+```bash
+kubectl apply -f mcp/k8s-deployment.yaml
+```
+
+### 3. Verificar el despliegue
+
+```bash
+kubectl get deployments
+kubectl get services
+kubectl get ingress
+```
+
+### 4. Acceso al servicio
+
+El Ingress expone la aplicación en la ruta:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.finneg.com/crisalis/crisalis-tech-2026/training-platform-mcp-g2.git
-git branch -M main
-git push -uf origin main
+/api/1/historial-cursos/
 ```
 
-## Integrate with your tools
+Si tu cluster usa la clase de Ingress `nginx-servicios`, el tráfico HTTP llegará correctamente.
 
-* [Set up project integrations](https://gitlab.finneg.com/crisalis/crisalis-tech-2026/training-platform-mcp-g2/-/settings/integrations)
+## Variables de entorno
 
-## Collaborate with your team
+- `DB_HOST`: host del servidor SQL Server
+- `DB_PORT`: puerto de SQL Server (por defecto 1433)
+- `DB_USER`: usuario de SQL Server
+- `DB_PASSWORD`: password de SQL Server
+- `DB_NAME`: nombre de la base de datos
+- `SERVER_HOST`: host del servidor MCP (por defecto `0.0.0.0`)
+- `SERVER_PORT`: puerto del servidor MCP (por defecto `8000`)
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Arquitectura del servidor
 
-## Test and Deploy
+El servidor arranca con `python main.py` y usa `uvicorn`.
 
-Use the built-in continuous integration in GitLab.
+En `mcp/main.py`, la aplicación MCP se crea con:
+- `namespaces_dir="./namespaces"`
+- `config_file="mcp.yaml"`
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Esto carga automáticamente el namespace `gestion_historial` desde `mcp/namespaces/gestion_historial/`.
 
-***
+## Tools del MCP
 
-# Editing this README
+### `get_course_progress`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Recupera el progreso actual del usuario autenticado.
 
-## Suggestions for a good README
+**Funcionamiento:**
+- Extrae el `access_token` del contexto MCP o del header `Authorization: Bearer <token>`
+- Valida el token contra `https://go.finneg.com/auth/token/info`
+- Consulta la base de datos y devuelve:
+  - `user_email`: email del usuario
+  - `current_course`: nombre del curso actual
+  - `current_stage`: nombre de la etapa actual
+  - `updated_at`: timestamp de la última actualización
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Ejemplo de respuesta:**
+```json
+{
+  "user_email": "usuario@example.com",
+  "current_course": "Programacion_desde_0_Parte_1",
+  "current_stage": "ADELINA_TEORIA",
+  "updated_at": "2026-06-17T10:30:45.123456"
+}
+```
 
-## Name
-Choose a self-explaining name for your project.
+### `save_course_progress`
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Guarda o actualiza el progreso de curso del usuario autenticado.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Parámetros:**
+- `course_name` (string): nombre del curso
+- `stage_name` (string): nombre de la etapa
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+**Funcionamiento:**
+- Valida el token y obtiene el email del usuario
+- Crea el curso en la tabla `courses` si no existe
+- Crea la etapa en la tabla `stages` si no existe
+- Inserta o actualiza el registro en `student_progress`
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Ejemplo de respuesta:**
+```json
+{
+  "status": "ok",
+  "user_email": "usuario@example.com",
+  "saved_course": "Programacion_desde_0_Parte_1",
+  "saved_stage": "ADELINA_TEORIA",
+  "updated_at": "2026-06-17T10:30:45.123456"
+}
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Recursos del MCP
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### `historial-cursos://welcome-resource`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Recurso simple que devuelve un mensaje de bienvenida del servidor MCP cuando se consulta el namespace.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Prompts del MCP
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### `welcome_prompt`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Prompt dinámico que genera una explicación concisa sobre un tema con ejemplos y buenas prácticas.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**Parámetro:**
+- `topic` (string): tema sobre el cual generar la explicación
 
-## License
-For open source projects, say how it is licensed.
+## Seguridad y autenticación
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+La autenticación se basa en `go-token`.
+
+- El namespace `historial-cursos` usa `auth_mode: go-token`
+- `mcp/namespaces/gestion_historial/auth.py` extrae el token del contexto y valida el email del usuario
+- El token se valida contra el endpoint de GO: `https://go.finneg.com/auth/token/info`
+- Si el token es inválido o está expirado, las herramientas devuelven un error de autorización
+
+## Notas importantes de despliegue
+
+- `mcp/Dockerfile` instala dependencias desde Nexus usando `NEXUS_USER` y `NEXUS_PASSWORD`
+- `mcp/docker-compose.yml` utiliza una red Docker externa llamada `cursos`
+- `mcp/k8s-db-secret.yaml` no debe guardarse con credenciales reales en el repositorio
+- `mcp/k8s-deployment.yaml` incluye `livenessProbe` en la ruta `/api/1/historial-cursos/ping`
+- El contenedor se ejecuta como usuario no root (`appuser` con UID 10001) por razones de seguridad
+
+## Pruebas rápidas
+
+### Verificar el servidor en local
+
+```bash
+curl http://localhost:8000/api/1/historial-cursos/ping
+```
+
+### Probar una tool con token
+
+```bash
+curl -X POST http://localhost:8000/api/1/historial-cursos/get_course_progress \
+  -H "Authorization: Bearer <tu_token>" \
+  -H "Content-Type: application/json"
+```
+
+## Estado
+
+Proyecto listo para ejecutar en local con Docker Compose y desplegar en Kubernetes con los manifiestos provistos.
+
+## Referencia rápida
+
+- **Configuración:** `mcp/mcp.yaml`
+- **Variables de conexión BD:** `mcp/db.py`
+- **Lógica de tools:** `mcp/namespaces/gestion_historial/handlers.py`
+- **Validación de tokens:** `mcp/namespaces/gestion_historial/auth.py`
+
