@@ -2,13 +2,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: skill-adelina
+  name: training-platform-mcp-g2
 spec:
   minReadySeconds: 20
   replicas: 1
   selector:
     matchLabels:
-      app: skill-adelina
+      app: training-platform-mcp-g2
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -17,11 +17,11 @@ spec:
   template:
     metadata:
       labels:
-        app: skill-adelina
+        app: training-platform-mcp-g2
     spec:
       containers:
-        - image: 435512111670.dkr.ecr.us-east-1.amazonaws.com/eco/back:skill-adelina-1
-          name: skill-adelina
+        - image: 435512111670.dkr.ecr.us-east-1.amazonaws.com/eco/back:training-platform-mcp-g2-1
+          name: training-platform-mcp-g2
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -47,51 +47,66 @@ spec:
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: skill-adelina-db-secret
+                  name: training-platform-mcp-g2-db-secret
                   key: db_host
                   optional: true
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: skill-adelina-db-secret
+                  name: training-platform-mcp-g2-db-secret
                   key: db_port
                   optional: true
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: skill-adelina-db-secret
+                  name: training-platform-mcp-g2-db-secret
                   key: db_user
                   optional: true
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: skill-adelina-db-secret
+                  name: training-platform-mcp-g2-db-secret
                   key: db_password
                   optional: true
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: skill-adelina-db-secret
+                  name: training-platform-mcp-g2-db-secret
                   key: db_name
                   optional: true
+        - image: mcr.microsoft.com/mssql/server:2022-latest
+          name: sqlserver
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              value: "Clave_2019!"
+            - name: MSSQL_PID
+              value: "Express"
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: skill-adelina-service
+  name: training-platform-mcp-g2-service
 spec:
   ports:
     - port: 80
       targetPort: 8000
   selector:
-    app: skill-adelina
+    app: training-platform-mcp-g2
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
-  name: skill-adelina-ingress
+  name: training-platform-mcp-g2-ingress
 spec:
   ingressClassName: nginx-servicios
   rules:
@@ -99,7 +114,7 @@ spec:
         paths:
           - backend:
               service:
-                name: skill-adelina-service
+                name: training-platform-mcp-g2-service
                 port:
                   number: 80
             path: /api/1/historial-cursos/

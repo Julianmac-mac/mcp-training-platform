@@ -14,7 +14,7 @@ from db import (
 
 logger = logging.getLogger(__name__)
 
-historial_cursos_namespace = FastMCP("HistorialCursosNamespace")
+training_platform_mcp_g2_namespace = FastMCP("TrainingPlatformMcpG2Namespace")
 
 
 def _build_progress_response(user_email: str, course_name: str, stage_name: str, updated_at: datetime) -> dict:
@@ -26,7 +26,7 @@ def _build_progress_response(user_email: str, course_name: str, stage_name: str,
     }
 
 
-@historial_cursos_namespace.tool()
+@training_platform_mcp_g2_namespace.tool()
 async def get_course_progress(ctx: Context) -> dict:
     """
     Retrieve the current course progress for the authenticated user.
@@ -70,7 +70,7 @@ async def get_course_progress(ctx: Context) -> dict:
         connection.close()
 
 
-@historial_cursos_namespace.tool()
+@training_platform_mcp_g2_namespace.tool()
 async def save_course_progress(course_name: str, stage_name: str, ctx: Context) -> dict:
     """
     Save or update the authenticated user's course progress.
@@ -116,14 +116,14 @@ async def save_course_progress(course_name: str, stage_name: str, ctx: Context) 
         connection.close()
 
 
-@historial_cursos_namespace.resource("historial-cursos://welcome-resource")
+@training_platform_mcp_g2_namespace.resource("training-platform-mcp-g2://welcome-resource")
 def welcome_resource() -> str:
     return (
-        "Welcome to the Historial Cursos MCP server. "
+        "Welcome to the Training Platform MCP server. "
         "Use get_course_progress and save_course_progress to manage user progress."
     )
 
 
-@historial_cursos_namespace.prompt()
+@training_platform_mcp_g2_namespace.prompt()
 def welcome_prompt(topic: str) -> str:
     return f"Provide a concise explanation of {topic} with examples and best practices."

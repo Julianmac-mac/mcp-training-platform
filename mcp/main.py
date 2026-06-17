@@ -16,7 +16,7 @@ def main() -> None:
     )
 
     app = create_mcp_app(
-        title="Historial Cursos MCP",
+        title="Training Platform MCP Server",
         namespaces_dir="./namespaces",
         config_file="mcp.yaml",
     )
