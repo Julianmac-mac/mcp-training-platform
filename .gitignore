@@ -34,3 +34,6 @@ pip.config
 
 # Variables de entorno
 .env
+
+# db-secret
+training-platform-mcp-g2-db-secret.yaml
