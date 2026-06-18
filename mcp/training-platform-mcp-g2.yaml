@@ -25,7 +25,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /api/1/tutores-grupo-5/ping
+              path: /api/1/training-platform-mcp-g2/
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 120
