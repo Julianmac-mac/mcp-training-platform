@@ -7,11 +7,10 @@ WORKDIR /app
 ENV DB_HOST=mssql
 ENV DB_PORT=1433
 
-ARG NEXUS_USER
-ARG NEXUS_PASSWORD
 COPY requirements.txt .
-RUN pip config set global.extra-index-url "https://${NEXUS_USER}:${NEXUS_PASSWORD}@nexus.finneg.com/repository/python-dev/simple"
+COPY pip.conf /root/.config/pip/pip.conf
 RUN pip install --no-cache-dir -r requirements.txt
+RUN rm -rf /root/.config/pip/pip.conf
 
 COPY db.py .
 COPY main.py .

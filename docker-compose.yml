@@ -2,10 +2,7 @@ services:
   mcp:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        NEXUS_USER: ${NEXUS_USER}
-        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
+      dockerfile: dockerfile
     container_name: training-platform-mcp-g2
     environment:
       DB_HOST: ${DB_HOST}
