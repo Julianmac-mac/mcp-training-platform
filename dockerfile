@@ -8,9 +8,10 @@ ENV DB_HOST=mssql
 ENV DB_PORT=1433
 
 COPY requirements.txt .
-COPY pip.conf /root/.config/pip/pip.conf
+COPY pip.conf /etc/pip.conf
+ENV PIP_CONFIG_FILE=/etc/pip.conf
 RUN pip install --no-cache-dir -r requirements.txt
-RUN rm -rf /root/.config/pip/pip.conf
+RUN rm -f /etc/pip.conf
 
 COPY db.py .
 COPY main.py .
