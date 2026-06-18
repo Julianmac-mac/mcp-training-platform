@@ -25,7 +25,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /api/1/training-platform-mcp-g2/ping
+              path: /api/1/tutores-grupo-5/ping
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 120
@@ -43,52 +43,26 @@ spec:
               memory: 128Mi
           env:
             - name: GO_BASE_PATH
-              value: "https://servicios-dev.finneg.com"
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: training-platform-mcp-g2-db-secret
-                  key: db_host
-                  optional: true
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: training-platform-mcp-g2-db-secret
-                  key: db_port
-                  optional: true
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: training-platform-mcp-g2-db-secret
-                  key: db_user
-                  optional: true
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: training-platform-mcp-g2-db-secret
-                  key: db_password
-                  optional: true
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: training-platform-mcp-g2-db-secret
-                  key: db_name
-                  optional: true
+              value: "https://go-dev.finneg.com"
         - image: mcr.microsoft.com/mssql/server:2022-latest
           name: sqlserver
           env:
             - name: ACCEPT_EULA
-              value: "Y"
+              value: "yes"
             - name: SA_PASSWORD
               value: "Clave_2019!"
             - name: MSSQL_PID
               value: "Express"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
           resources:
             limits:
-              memory: 512Mi
+              memory: 1Gi
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 250m
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
