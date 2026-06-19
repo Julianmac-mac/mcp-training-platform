@@ -9,11 +9,12 @@ ENV DB_PORT=1433
 ENV GO_BASE_PATH=go-dev.finneg.com
 ENV SERVER_HOST=0.0.0.0
 ENV SERVER_PORT=8000
-ARG NEXUS_USER
-ARG NEXUS_PASSWORD
+
 COPY requirements.txt .
-RUN pip config set global.extra-index-url "https://${NEXUS_USER}:${NEXUS_PASSWORD}@nexus.finneg.com/repository/python-dev/simple"
+COPY pip.conf /etc/pip.conf
+ENV PIP_CONFIG_FILE=/etc/pip.conf
 RUN pip install --no-cache-dir -r requirements.txt
+RUN rm -f /etc/pip.conf
 
 COPY db.py .
 COPY main.py .
