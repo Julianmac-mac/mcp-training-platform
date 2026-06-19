@@ -13,6 +13,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      GO_BASE_PATH: "${GO_BASE_PATH:-go-dev.finneg.com}"
       SERVER_HOST: "0.0.0.0"
       SERVER_PORT: "8000"
     ports:

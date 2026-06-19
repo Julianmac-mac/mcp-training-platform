@@ -2,9 +2,10 @@ import logging
 from typing import Any, Dict, Optional
 
 import httpx
+from ffmcp import GO_BASE_PATH
 
 logger = logging.getLogger(__name__)
-TOKEN_INFO_URL = "https://go-dev.finneg.com/auth/token/info"
+TOKEN_INFO_URL = f"{GO_BASE_PATH}/auth/token/info"
 
 
 async def resolve_user_email(access_token: str) -> str:

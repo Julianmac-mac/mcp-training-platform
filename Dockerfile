@@ -6,7 +6,9 @@ WORKDIR /app
 # Default DB connection settings for the MSSQL container on the same Docker network
 ENV DB_HOST=mssql
 ENV DB_PORT=1433
-
+ENV GO_BASE_PATH=go-dev.finneg.com
+ENV SERVER_HOST=0.0.0.0
+ENV SERVER_PORT=8000
 ARG NEXUS_USER
 ARG NEXUS_PASSWORD
 COPY requirements.txt .
