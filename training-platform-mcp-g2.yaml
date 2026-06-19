@@ -43,7 +43,7 @@ spec:
               memory: 128Mi
           env:
             - name: GO_BASE_PATH
-              value: "https://go-dev.finneg.com"
+              value: "go-dev.finneg.com"
         - image: mcr.microsoft.com/mssql/server:2022-latest
           name: sqlserver
           env:

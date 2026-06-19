@@ -21,7 +21,7 @@ services:
       - cursos
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mssql
+    container_name: mssql2
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "Clave_2019!"
