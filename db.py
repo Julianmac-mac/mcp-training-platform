@@ -24,7 +24,7 @@ DB_USER     = "sa"
 DB_PASSWORD = "Clave_2019!"
 
 # Base activa en la sesión actual (arranca con la del .env, se puede cambiar con cambiar_base)
-_current_db: str = "HistorialCursos" # Valor por defecto, se puede cambiar dinámicamente en la sesión
+_current_db = "HistorialCursos" # Valor por defecto, se puede cambiar dinámicamente en la sesión
 
 BLOCKED_KEYWORDS = re.compile(
     r"\b(INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|MERGE|BULK)\b",
