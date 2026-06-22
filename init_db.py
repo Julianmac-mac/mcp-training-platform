@@ -1,8 +1,10 @@
 import time
 import pyodbc
 
+
+print("Iniciando script de inicializacion de la base de datos...")
 # Credenciales hardcodeadas por fines practicos
-host = "localhost"
+host = "mssql"
 port = "1433"
 username = "sa"
 password = "Clave_2019!"
@@ -19,6 +21,7 @@ for _ in range(30):
         conn = pyodbc.connect(conn_str, autocommit=True)
         break
     except Exception as e:
+        print(f"Error al conectar a SQL Server: {e}")
         time.sleep(2)
 
 if not conn:

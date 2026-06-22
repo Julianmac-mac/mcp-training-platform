@@ -23,6 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
 COPY mcp.yaml .
+COPY db.py .
 COPY namespaces/ ./namespaces/
 COPY db_init.sql .
 COPY init_db.py .
