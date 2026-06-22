@@ -70,6 +70,7 @@ async def get_course_progress(ctx: Context) -> dict:
         connection.close()
 
 
+
 @training_platform_mcp_g2_namespace.tool()
 async def save_course_progress(course_name: str, stage_name: str, ctx: Context) -> dict:
     """
@@ -127,3 +128,28 @@ def welcome_resource() -> str:
 @training_platform_mcp_g2_namespace.prompt()
 def welcome_prompt(topic: str) -> str:
     return f"Provide a concise explanation of {topic} with examples and best practices."
+
+
+@training_platform_mcp_g2_namespace.tool()
+async def get_user_email(ctx: Context) -> dict:
+    """
+    Get the email of the currently authenticated user from their access token.
+    """
+    logger.info("get_user_email called")
+
+    # 1. Extraer el token de acceso desde el contexto
+    access_token = extract_access_token(ctx)
+    if not access_token:
+        logger.error("Access token not found")
+        return {"error": "Authorization token is required"}
+
+    # 2. Resolver y validar el email del usuario usando el token
+    try:
+        user_email = await resolve_user_email(access_token)
+        return {
+            "status": "ok",
+            "user_email": user_email
+        }
+    except ValueError as exc:
+        logger.error("Token validation failed: %s", exc)
+        return {"error": "Invalid or expired token"}

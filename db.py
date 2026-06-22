@@ -18,10 +18,10 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 class DatabaseConnectionError(Exception):
     """Raised when a database operation fails."""
 
-DB_HOST     = os.getenv("DB_HOST", "")
-DB_PORT     = int(os.getenv("DB_PORT", ""))
-DB_USER     = os.getenv("DB_USER", "")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_HOST     = "mssql"
+DB_PORT     = 1433
+DB_USER     = "sa"
+DB_PASSWORD = "Clave_2019!"
 
 # Base activa en la sesión actual (arranca con la del .env, se puede cambiar con cambiar_base)
 _current_db: str = os.getenv("DB_NAME", "")
