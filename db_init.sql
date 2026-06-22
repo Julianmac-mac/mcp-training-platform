@@ -1,7 +1,6 @@
-create database HistorialCursos
+create database HistorialCursos;
 
-use HistorialCursos
-
+use HistorialCursos;
 -- 1. Tabla de Catálogo de Cursos
 CREATE TABLE courses (
     course_id INTEGER IDENTITY(1,1) PRIMARY KEY,
