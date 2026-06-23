@@ -32,4 +32,4 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
-CMD ["sh", "-c", "python init_db.py && python main.py"]
+CMD ["sh", "-c", "python main.py"]
