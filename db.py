@@ -18,7 +18,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 class DatabaseConnectionError(Exception):
     """Raised when a database operation fails."""
 
-DB_HOST     = "mssql"
+DB_HOST     = "localhost"
 DB_PORT     = 1433
 DB_USER     = "sa"
 DB_PASSWORD = "Clave_2019!"
