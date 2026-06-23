@@ -5,7 +5,7 @@ services:
       dockerfile: dockerfile
     container_name: training-platform-mcp-g2
     environment:
-      DB_HOST: "mssql"
+      DB_HOST: "localhost"
       DB_PORT: 1433
       DB_USER: "sa"
       DB_PASSWORD: "Clave_2019!"

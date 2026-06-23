@@ -3,7 +3,7 @@ import pymssql  # Cambiado de pyodbc a pymssql
 
 print("Iniciando script de inicializacion de la base de datos...")
 # Credenciales hardcodeadas por fines practicos
-host = "mssql"
+host = "localhost"
 port = "1433"
 username = "sa"
 password = "Clave_2019!"
