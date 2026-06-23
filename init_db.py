@@ -1,6 +1,5 @@
 import time
-import pyodbc
-
+import pymssql  # Cambiado de pyodbc a pymssql
 
 print("Iniciando script de inicializacion de la base de datos...")
 # Credenciales hardcodeadas por fines practicos
@@ -8,17 +7,21 @@ host = "mssql"
 port = "1433"
 username = "sa"
 password = "Clave_2019!"
-server_address = f"{host},{port}"
-
-# Nos conectamos a 'master' para poder dropear y crear la base
-conn_str = f"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server_address};DATABASE=master;UID={username};PWD={password};TrustServerCertificate=yes;"
 
 print("Esperando a que SQL Server este listo...")
 conn = None
 for _ in range(30):
     try:
-        # Autocommit = True es requerido para ejecutar CREATE DATABASE
-        conn = pyodbc.connect(conn_str, autocommit=True)
+        # En pymssql pasamos los parámetros directamente.
+        # autocommit=True es requerido para ejecutar CREATE DATABASE.
+        conn = pymssql.connect(
+            server=host,
+            port=port,
+            user=username,
+            password=password,
+            database='master',
+            autocommit=True
+        )
         break
     except Exception as e:
         print(f"Error al conectar a SQL Server: {e}")
@@ -35,7 +38,7 @@ try:
     with open('db_init.sql', 'r', encoding='utf-8') as f:
         sql_script = f.read()
 
-    # pyodbc no soporta 'GO', tenemos que separar por lotes
+    # pymssql tampoco soporta 'GO' de forma nativa, se mantiene la separación por lotes
     batches = [b.strip() for b in sql_script.split('GO') if b.strip()]
     
     for batch in batches:
