@@ -30,7 +30,7 @@ services:
       - cursos
     healthcheck:
       # Este comando verifica internamente si el motor responde consultas reales en la edición Express
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Clave_2019!", "-Q", "SELECT 1", "-C"]
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Clave_2019!", "-Q", "SELECT 1", "-C"]
       interval: 5s
       timeout: 5s
       retries: 10
