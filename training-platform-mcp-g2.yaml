@@ -20,7 +20,7 @@ spec:
         app: training-platform-mcp-g2
     spec:
       containers:
-        - image: 435512111670.dkr.ecr.us-east-1.amazonaws.com/eco/back:training-platform-mcp-g2-1
+        - image: <your-registry>/training-platform-mcp-g2:<tag>
           name: training-platform-mcp-g2
           livenessProbe:
             failureThreshold: 3
@@ -43,14 +43,14 @@ spec:
               memory: 128Mi
           env:
             - name: GO_BASE_PATH
-              value: "go-dev.finneg.com"
+              value: "<your-go-base-path>"
         - image: mcr.microsoft.com/mssql/server:2022-latest
           name: sqlserver
           env:
             - name: ACCEPT_EULA
-              value: "yes"
+              value: "Y"
             - name: SA_PASSWORD
-              value: "Clave_2019!"
+              value: "<your-sa-password>"
             - name: MSSQL_PID
               value: "Express"
           securityContext:
@@ -82,7 +82,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
   name: training-platform-mcp-g2-ingress
 spec:
-  ingressClassName: nginx-servicios
+  ingressClassName: <your-ingress-class>
   rules:
     - http:
         paths:
