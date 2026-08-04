@@ -14,26 +14,43 @@ Thumbs.db
 *.bak
 *.log
 
-# Entornos virtuales
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
 venv/
 .venv/
 env/
-# Caché de Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-# Configuraciones locales con contraseñas (ajusta la ruta si es necesario)
-skills/config.json
-# Archivos de sistema / IDEs
-Thumbs.db
-.DS_Store
+ENV/
 
-#Pip Config
-pip.config
-
-# Variables de entorno
+# Local configuration
 .env
+.env.*
+!.env.example
+pip.conf
+pip.config
+*.local
+*.cfg.local
 
-# db-secret
+# Databases / local data
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+secrets/
 training-platform-mcp-g2-db-secret.yaml

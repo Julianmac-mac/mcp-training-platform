@@ -5,14 +5,14 @@ services:
       dockerfile: dockerfile
     container_name: training-platform-mcp-g2
     environment:
-      DB_HOST: "localhost"
-      DB_PORT: 1433
-      DB_USER: "sa"
-      DB_PASSWORD: "Clave_2019!"
-      DB_NAME: "HistorialCursos"
-      GO_BASE_PATH: "go-dev.finneg.com"
-      SERVER_HOST: "0.0.0.0"
-      SERVER_PORT: "8000"
+      DB_HOST: ${DB_HOST:-localhost}
+      DB_PORT: ${DB_PORT:-1433}
+      DB_USER: ${DB_USER:-sa}
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      DB_NAME: ${DB_NAME:-HistorialCursos}
+      GO_BASE_PATH: ${GO_BASE_PATH:-go-dev.finneg.com}
+      SERVER_HOST: ${SERVER_HOST:-0.0.0.0}
+      SERVER_PORT: ${SERVER_PORT:-8000}
     ports:
       - "8000:8000"
     networks:
@@ -22,7 +22,7 @@ services:
     container_name: mssql
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Clave_2019!"
+      SA_PASSWORD: ${SA_PASSWORD:-Clave_2019!}
       MSSQL_PID: "Express"
     ports:
       - "1433:1433"
@@ -30,7 +30,7 @@ services:
       - cursos
     healthcheck:
       # Este comando verifica internamente si el motor responde consultas reales en la edición Express
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Clave_2019!", "-Q", "SELECT 1", "-C"]
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SA_PASSWORD:-Clave_2019!}", "-Q", "SELECT 1", "-C"]
       interval: 5s
       timeout: 5s
       retries: 10

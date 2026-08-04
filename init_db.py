@@ -1,12 +1,12 @@
+import os
 import time
 import pymssql  # Cambiado de pyodbc a pymssql
 
 print("Iniciando script de inicializacion de la base de datos...")
-# Credenciales hardcodeadas por fines practicos
-host = "localhost"
-port = "1433"
-username = "sa"
-password = "Clave_2019!"
+host = os.getenv("DB_HOST", "localhost")
+port = os.getenv("DB_PORT", "1433")
+username = os.getenv("DB_USER", "sa")
+password = os.getenv("DB_PASSWORD", "")
 
 print("Esperando a que SQL Server este listo...")
 conn = None
@@ -16,7 +16,7 @@ for _ in range(30):
         # autocommit=True es requerido para ejecutar CREATE DATABASE.
         conn = pymssql.connect(
             server=host,
-            port=port,
+            port=int(port),
             user=username,
             password=password,
             database='master',
