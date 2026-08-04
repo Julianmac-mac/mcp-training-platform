@@ -2,43 +2,66 @@
 
 ## ¿Qué hace este proyecto?
 
-Este repositorio contiene un servidor MCP (Model Context Protocol) en Python para registrar y consultar el progreso de cursos de usuarios autenticados. Expone herramientas como `get_course_progress` y `save_course_progress`, valida tokens de acceso y persiste la información en SQL Server.
+Este repositorio contiene un servidor MCP (Model Context Protocol) en Python para registrar y consultar el progreso de cursos de usuarios autenticados. El servidor expone herramientas para:
+
+- obtener el progreso actual de un usuario (`get_course_progress`)
+- guardar el avance de curso y etapa (`save_course_progress`)
+
+La aplicación valida tokens de acceso y persiste los datos en SQL Server.
 
 ## Estructura principal
 
 - `main.py`: punto de entrada del servidor MCP.
-- `mcp.yaml`: configuración del servidor y del namespace registrado.
-- `db.py`: conexión a SQL Server y operaciones de progreso.
-- `db_init.sql`: script SQL para crear la estructura base.
-- `init_db.py`: inicializa la base de datos localmente.
-- `docker-compose.yml`: levanta la aplicación y SQL Server para desarrollo.
-- `namespaces/training_platform_mcp_g2/handlers.py`: define las herramientas, recursos y prompt del namespace.
-- `namespaces/training_platform_mcp_g2/auth.py`: extrae y valida el token del usuario.
-- `namespaces/training_platform_mcp_g2/config.py`: configura el namespace del MCP.
+- `mcp.yaml`: configuración del servidor y namespace.
+- `db.py`: conexión y operaciones con SQL Server.
+- `db_init.sql`: script SQL para crear la estructura de base de datos.
+- `init_db.py`: script de inicialización local de la base de datos.
+- `docker-compose.yml`: configuración de desarrollo con Docker Compose.
+- `namespaces/training_platform_mcp_g2/handlers.py`: tools, recurso y prompt del namespace.
+- `namespaces/training_platform_mcp_g2/auth.py`: extracción y validación del token.
+- `namespaces/training_platform_mcp_g2/config.py`: definición del namespace.
 
 ## Requisitos
 
 - Python 3.10+
-- Docker y Docker Compose (opcional, pero recomendado)
-- SQL Server o un contenedor local
-- Variables de entorno para la conexión a la base de datos
+- Docker y Docker Compose (opcional)
+- SQL Server (local o remoto)
+- Variables de entorno correctamente configuradas
 
 ## Configuración rápida
 
-1. Copia `.env.example` a `.env` y ajusta los valores.
-2. Instala las dependencias:
+1. Copia `.env.example` a `.env`:
+
+```bash
+copy .env.example .env
+```
+
+2. Ajusta las variables:
+
+```env
+DB_HOST=<host_sql_server>
+DB_PORT=1433
+DB_USER=<usuario_sql>
+DB_PASSWORD=<password_sql>
+DB_NAME=HistorialCursos
+GO_BASE_PATH=<go_base_path>
+SERVER_HOST=0.0.0.0
+SERVER_PORT=8000
+```
+
+3. Instala las dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Inicia el servidor:
+4. Inicia el servidor directamente:
 
 ```bash
 python main.py
 ```
 
-4. Si prefieres usar Docker Compose:
+5. O usa Docker Compose:
 
 ```bash
 docker compose up --build
@@ -48,21 +71,37 @@ docker compose up --build
 
 - `DB_HOST`: host del servidor SQL Server
 - `DB_PORT`: puerto de SQL Server
-- `DB_USER`: usuario de base de datos
-- `DB_PASSWORD`: contraseña de base de datos
+- `DB_USER`: usuario de SQL Server
+- `DB_PASSWORD`: contraseña de SQL Server
 - `DB_NAME`: nombre de la base de datos
-- `GO_BASE_PATH`: base para validar tokens
-- `SERVER_HOST` y `SERVER_PORT`: configuración del servidor MCP
+- `GO_BASE_PATH`: URL base para validar tokens
+- `SERVER_HOST`: host del servidor MCP
+- `SERVER_PORT`: puerto del servidor MCP
 
-## Herramientas expuestas
+## Uso básico
 
 ### `get_course_progress`
-Recupera el curso y la etapa actual del usuario autenticado.
+Recupera el curso y la etapa actuales del usuario autenticado.
 
 ### `save_course_progress`
-Guarda o actualiza el progreso del usuario autenticado.
+Guarda o actualiza el progreso de un usuario autenticado.
 
-## Notas para revisar el proyecto
+## Buenas prácticas para revisión
 
-El código está organizado por responsabilidad: entrada del servidor, configuración del namespace, lógica de autenticación y acceso a datos. Para que sea fácil de revisar, conviene mantener el README actualizado, los secretos fuera del repositorio y los ejemplos de entorno en `.env.example`.
+- No subir archivos de configuración local ni secretos.
+- Mantener `pip.conf`, `.env` y `venv/` fuera del repositorio.
+- Usar `.env.example` como plantilla de configuración.
+- Documentar los endpoints o tools disponibles.
+
+## Notas de seguridad
+
+Este proyecto ya está configurado para leer la conexión a la base de datos desde variables de entorno en lugar de valores hardcodeados.
+
+No debes subir nunca:
+
+- `.env`
+- `pip.conf`
+- `pip.config`
+- `venv/` o `.venv/`
+- archivos con contraseñas, certificados o claves privadas
 
