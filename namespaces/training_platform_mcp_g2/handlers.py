@@ -26,6 +26,20 @@ def _build_progress_response(user_email: str, course_name: str, stage_name: str,
     }
 
 
+async def _get_authenticated_user_email(ctx: Context) -> tuple[str | None, dict[str, str] | None]:
+    """Validate the request token and resolve the authenticated user's email."""
+    access_token = extract_access_token(ctx)
+    if not access_token:
+        logger.error("Access token not found")
+        return None, {"error": "Authorization token is required"}
+
+    try:
+        return await resolve_user_email(access_token), None
+    except ValueError as exc:
+        logger.error("Token validation failed: %s", exc)
+        return None, {"error": "Invalid or expired token"}
+
+
 @training_platform_mcp_g2_namespace.tool()
 async def get_course_progress(ctx: Context) -> dict:
     """
@@ -33,16 +47,9 @@ async def get_course_progress(ctx: Context) -> dict:
     """
     logger.info("get_course_progress called")
 
-    access_token = extract_access_token(ctx)
-    if not access_token:
-        logger.error("Access token not found")
-        return {"error": "Authorization token is required"}
-
-    try:
-        user_email = await resolve_user_email(access_token)
-    except ValueError as exc:
-        logger.error("Token validation failed: %s", exc)
-        return {"error": "Invalid or expired token"}
+    user_email, auth_error = await _get_authenticated_user_email(ctx)
+    if auth_error:
+        return auth_error
 
     try:
         connection = get_connection()
@@ -63,12 +70,11 @@ async def get_course_progress(ctx: Context) -> dict:
 
         course_name, stage_name, updated_at = progress
         return _build_progress_response(user_email, course_name, stage_name, updated_at)
-    except Exception as exc:
+    except Exception:
         logger.exception("Failed to fetch course progress")
         return {"error": "Failed to fetch course progress"}
     finally:
         connection.close()
-
 
 
 @training_platform_mcp_g2_namespace.tool()
@@ -78,16 +84,9 @@ async def save_course_progress(course_name: str, stage_name: str, ctx: Context) 
     """
     logger.info("save_course_progress called with course_name=%s stage_name=%s", course_name, stage_name)
 
-    access_token = extract_access_token(ctx)
-    if not access_token:
-        logger.error("Access token not found")
-        return {"error": "Authorization token is required"}
-
-    try:
-        user_email = await resolve_user_email(access_token)
-    except ValueError as exc:
-        logger.error("Token validation failed: %s", exc)
-        return {"error": "Invalid or expired token"}
+    user_email, auth_error = await _get_authenticated_user_email(ctx)
+    if auth_error:
+        return auth_error
 
     if not course_name or not stage_name:
         logger.error("Course name or stage name missing")
@@ -95,7 +94,7 @@ async def save_course_progress(course_name: str, stage_name: str, ctx: Context) 
 
     try:
         connection = get_connection()
-    except Exception as exc:
+    except Exception:
         logger.exception("Database connection failed")
         return {"error": "Database connection failed"}
 
@@ -110,7 +109,7 @@ async def save_course_progress(course_name: str, stage_name: str, ctx: Context) 
             "saved_stage": stage_name,
             "updated_at": updated_at.isoformat(),
         }
-    except Exception as exc:
+    except Exception:
         logger.exception("Failed to save course progress")
         return {"error": "Failed to save course progress"}
     finally:

@@ -21,7 +21,7 @@ class DatabaseConnectionError(Exception):
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = int(os.getenv("DB_PORT", "1433"))
 DB_USER = os.getenv("DB_USER", "sa")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME", "HistorialCursos")
 
 # Base activa en la sesión actual (arranca con la del .env, se puede cambiar con cambiar_base)
@@ -34,6 +34,9 @@ BLOCKED_KEYWORDS = re.compile(
 
 def get_connection(base: str | None = None) -> pymssql.Connection:
     """Abre conexión. Usa `base` si se indica, si no usa la base activa de la sesión."""
+    if not DB_PASSWORD:
+        raise DatabaseConnectionError("DB_PASSWORD environment variable is required")
+
     db = base if base else _current_db
     return pymssql.connect(
         server=DB_HOST,

@@ -44,6 +44,7 @@ DB_PORT=1433
 DB_USER=<usuario_sql>
 DB_PASSWORD=<password_sql>
 DB_NAME=HistorialCursos
+SA_PASSWORD=<password_sql_server>
 GO_BASE_PATH=<go_base_path>
 SERVER_HOST=0.0.0.0
 SERVER_PORT=8000
@@ -66,6 +67,8 @@ python main.py
 ```bash
 docker compose up --build
 ```
+
+Docker Compose cargará las variables desde el archivo `.env`.
 
 ## Variables de entorno importantes
 
