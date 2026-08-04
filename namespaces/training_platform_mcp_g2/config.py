@@ -7,6 +7,7 @@ NAMESPACE_CONFIG = {
     "tools": [
         "get_course_progress",
         "save_course_progress",
+        "get_user_email",
     ],
     "resources": [
         "training-platform-mcp-g2://welcome-resource",

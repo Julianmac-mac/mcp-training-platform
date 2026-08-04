@@ -13,7 +13,8 @@ La aplicación valida tokens de acceso y persiste los datos en SQL Server.
 
 - `main.py`: punto de entrada del servidor MCP.
 - `mcp.yaml`: configuración del servidor y namespace.
-- `db.py`: conexión y operaciones con SQL Server.
+- `db.py`: conexión y operaciones con SQL Server para el MCP de progreso de cursos.
+- `legacy_db_service.py`: servicio legacy de acceso a datos de RRHH/talento, aislado del flujo principal del MCP.
 - `db_init.sql`: script SQL para crear la estructura de base de datos.
 - `init_db.py`: script de inicialización local de la base de datos.
 - `docker-compose.yml`: configuración de desarrollo con Docker Compose.
@@ -109,6 +110,9 @@ Recupera el curso y la etapa actuales del usuario autenticado.
 ### `save_course_progress`
 Guarda o actualiza el progreso de un usuario autenticado.
 
+### `get_user_email`
+Devuelve el email del usuario autenticado a partir del token de acceso.
+
 ## Buenas prácticas para revisión
 
 - No subir archivos de configuración local ni secretos.
@@ -119,6 +123,10 @@ Guarda o actualiza el progreso de un usuario autenticado.
 ## Notas de seguridad
 
 Este proyecto ya está configurado para leer la conexión a la base de datos desde variables de entorno en lugar de valores hardcodeados.
+
+## Notas de compatibilidad
+
+El servidor está pensado para ejecutarse con el framework interno `ffmcp` y el patrón de autenticación `go-token`. Por eso, si se quiere levantar fuera del contexto de Finnegans, puede requerir ajustes adicionales de infraestructura o dependencias.
 
 No debes subir nunca:
 
