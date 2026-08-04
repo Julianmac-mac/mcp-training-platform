@@ -77,9 +77,29 @@ Docker Compose cargará las variables desde el archivo `.env`.
 - `DB_USER`: usuario de SQL Server
 - `DB_PASSWORD`: contraseña de SQL Server
 - `DB_NAME`: nombre de la base de datos
+- `SA_PASSWORD`: contraseña del usuario `sa` para SQL Server (solo Docker Compose)
 - `GO_BASE_PATH`: URL base para validar tokens
 - `SERVER_HOST`: host del servidor MCP
 - `SERVER_PORT`: puerto del servidor MCP
+
+## Inicialización de la base de datos
+
+El proyecto incluye el script [db_init.sql](db_init.sql) para crear la base de datos y las tablas necesarias.
+
+### Opción 1: usar Docker Compose
+Si levantás el stack con Docker Compose, el contenedor de SQL Server se inicializa con el script incluido y queda listo para el servidor MCP.
+
+### Opción 2: inicializarla manualmente
+Si ya tenés SQL Server corriendo, podés ejecutar el script desde una herramienta como `sqlcmd` o desde tu cliente SQL Server:
+
+```bash
+sqlcmd -S <host> -U <usuario> -P <password> -i db_init.sql
+```
+
+El script crea:
+- `courses`: catálogo de cursos
+- `stages`: etapas del flujo de aprendizaje
+- `student_progress`: registro del progreso de cada usuario
 
 ## Uso básico
 
