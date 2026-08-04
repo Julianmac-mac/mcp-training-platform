@@ -14,7 +14,6 @@ La aplicación valida tokens de acceso y persiste los datos en SQL Server.
 - `main.py`: punto de entrada del servidor MCP.
 - `mcp.yaml`: configuración del servidor y namespace.
 - `db.py`: conexión y operaciones con SQL Server para el MCP de progreso de cursos.
-- `legacy_db_service.py`: servicio legacy de acceso a datos de RRHH/talento, aislado del flujo principal del MCP.
 - `db_init.sql`: script SQL para crear la estructura de base de datos.
 - `init_db.py`: script de inicialización local de la base de datos.
 - `docker-compose.yml`: configuración de desarrollo con Docker Compose.
