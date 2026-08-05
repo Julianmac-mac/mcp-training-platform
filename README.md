@@ -20,6 +20,7 @@ La aplicación valida tokens de acceso y persiste los datos en SQL Server.
 - `namespaces/training_platform_mcp_g2/handlers.py`: tools, recurso y prompt del namespace.
 - `namespaces/training_platform_mcp_g2/auth.py`: extracción y validación del token.
 - `namespaces/training_platform_mcp_g2/config.py`: definición del namespace.
+- `tests/`: pruebas automáticas que validan la configuración del namespace y que el proyecto no acumule código ajeno a su alcance.
 
 ## Requisitos
 
@@ -111,6 +112,21 @@ Guarda o actualiza el progreso de un usuario autenticado.
 
 ### `get_user_email`
 Devuelve el email del usuario autenticado a partir del token de acceso.
+
+## Tests
+
+El proyecto incluye pruebas automáticas en `tests/` que verifican:
+
+- que `config.py` declare correctamente las tools del namespace;
+- que `db.py` no acumule código fuera del alcance del training platform (progreso de cursos);
+- que no aparezcan restos de otras funcionalidades en ningún archivo del repo.
+
+Para correrlas:
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
 
 ## Buenas prácticas para revisión
 
